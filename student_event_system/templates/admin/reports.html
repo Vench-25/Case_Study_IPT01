@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}System Reports - NEUST-TOC{% endblock %}
+
+{% block content %}
+<div class="page-heading report-page-header">
+    <div>
+        <h2 class="h3 mb-0">System-Wide Reports</h2>
+        <p class="text-muted mb-0">Aggregate registration and attendance data across campus organizations</p>
+    </div>
+</div>
+
+
+<div class="card shadow-sm mb-4 report-filter-card">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('admin.reports') }}" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold" for="report-org">Organization</label>
+                <select id="report-org" name="org_id" class="form-select">
+                    <option value="">All Organizations</option>
+                    {% for org in organizations %}
+                    <option value="{{ org.organization_id }}" {% if org_id == org.organization_id|string %}selected{% endif %}>
+                        {{ org.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold" for="report-from">From Date</label>
+                <input id="report-from" type="date" name="date_from" class="form-control" value="{{ date_from }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold" for="report-to">To Date</label>
+                <input id="report-to" type="date" name="date_to" class="form-control" value="{{ date_to }}">
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary w-100">Filter</button>
+                {% if org_id or date_from or date_to %}
+                <a href="{{ url_for('admin.reports') }}" class="btn btn-outline-secondary">Reset</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="card shadow-sm report-table-card">
+    <div class="card-header bg-white py-3">
+        <h5 class="card-title mb-0 fw-bold">Event Summary &amp; Attendance Metrics</h5>
+    </div>
+    <div class="card-body p-0">
+        {% if reports %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Event Title</th>
+                        <th>Organization</th>
+                        <th>Event Date</th>
+                        <th>Status</th>
+                        <th class="text-center">Capacity</th>
+                        <th class="text-center">Registered</th>
+                        <th class="text-center text-success">Present</th>
+                        <th class="text-center text-danger">Absent</th>
+                        <th class="text-center text-muted">Unmarked</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in reports %}
+                    <tr>
+                        <td class="fw-semibold">{{ row.title }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ row.organization_name }}</span></td>
+                        <td><small>{{ row.start_at|datetimeformat }}</small></td>
+                        <td>
+                            {% if row.status == 'published' %}
+                            <span class="badge bg-success">Published</span>
+                            {% elif row.status == 'completed' %}
+                            <span class="badge bg-info text-dark">Completed</span>
+                            {% elif row.status == 'cancelled' %}
+                            <span class="badge bg-danger">Cancelled</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Draft</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ row.capacity }}</td>
+                        <td class="text-center fw-bold">{{ row.registered_count }}</td>
+                        <td class="text-center fw-bold text-success">{{ row.present_count }}</td>
+                        <td class="text-center fw-bold text-danger">{{ row.absent_count }}</td>
+                        <td class="text-center text-muted">{{ row.unmarked_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-bar-chart fs-1 d-block mb-2"></i>
+            No event data found for the selected criteria.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

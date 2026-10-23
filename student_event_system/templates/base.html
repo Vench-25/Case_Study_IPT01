@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light" data-theme-preference="system">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>{% block title %}NEUST-TOC Student Event System{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
+    <script>
+        (function () {
+            var preference = 'system';
+            try {
+                preference = localStorage.getItem('neust-event-theme') || 'system';
+            } catch (error) {
+                preference = 'system';
+            }
+            var resolved = preference === 'system'
+                ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+                : preference;
+            document.documentElement.dataset.bsTheme = resolved;
+            document.documentElement.dataset.themePreference = preference;
+        }());
+    </script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if current_user %}
+    <button class="sidebar-overlay" id="sidebarOverlay" type="button"
+            aria-label="Close navigation" tabindex="-1"></button>
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a class="sidebar-brand" href="{{ url_for('index') }}" aria-label="NEUST–TOC Student Events home">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="" class="sidebar-logo">
+                <span class="sidebar-brand-copy">
+                    <strong>NEUST–TOC</strong>
+                    <small>Student Events</small>
+                </span>
+            </a>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="d-flex align-items-center">
+                <div class="user-avatar me-2">
+                    <i class="bi bi-person-circle fs-3" aria-hidden="true"></i>
+                </div>
+                <div class="sidebar-user-copy">
+                    <div class="fw-semibold text-truncate" style="max-width: 160px;">{{ current_user.full_name }}</div>
+                    <small class="opacity-75 text-capitalize">{{ current_user.role }}</small>
+                </div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Main navigation">
+            <ul class="nav flex-column">
+                {% if session.role == 'admin' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}"
+                       {% if request.endpoint == 'admin.dashboard' %}aria-current="page"{% endif %}
+                       aria-label="Dashboard"
+                       href="{{ url_for('admin.dashboard') }}">
+                        <i class="bi bi-speedometer2 me-2" aria-hidden="true"></i><span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.user') %}active{% endif %}"
+                       {% if request.endpoint and request.endpoint.startswith('admin.user') %}aria-current="page"{% endif %}
+                       aria-label="Users"
+                       href="{{ url_for('admin.users') }}">
+                        <i class="bi bi-people me-2" aria-hidden="true"></i><span class="nav-label">Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('admin.organization') %}active{% endif %}"
+                       {% if request.endpoint and request.endpoint.startswith('admin.organization') %}aria-current="page"{% endif %}
+                       aria-label="Organizations"
+                       href="{{ url_for('admin.organizations') }}">
+                        <i class="bi bi-building me-2" aria-hidden="true"></i><span class="nav-label">Organizations</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'admin.reports' %}active{% endif %}"
+                       {% if request.endpoint == 'admin.reports' %}aria-current="page"{% endif %}
+                       aria-label="Reports"
+                       href="{{ url_for('admin.reports') }}">
+                        <i class="bi bi-bar-chart-line me-2" aria-hidden="true"></i><span class="nav-label">Reports</span>
+                    </a>
+                </li>
+
+                {% elif session.role == 'officer' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'officer.dashboard' %}active{% endif %}"
+                       {% if request.endpoint == 'officer.dashboard' %}aria-current="page"{% endif %}
+                       aria-label="Dashboard"
+                       href="{{ url_for('officer.dashboard') }}">
+                        <i class="bi bi-speedometer2 me-2" aria-hidden="true"></i><span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and request.endpoint.startswith('officer.event') %}active{% endif %}"
+                       {% if request.endpoint and request.endpoint.startswith('officer.event') %}aria-current="page"{% endif %}
+                       aria-label="Events"
+                       href="{{ url_for('officer.events') }}">
+                        <i class="bi bi-calendar-event me-2" aria-hidden="true"></i><span class="nav-label">Events</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'officer.reports' %}active{% endif %}"
+                       {% if request.endpoint == 'officer.reports' %}aria-current="page"{% endif %}
+                       aria-label="Reports"
+                       href="{{ url_for('officer.reports') }}">
+                        <i class="bi bi-bar-chart-line me-2" aria-hidden="true"></i><span class="nav-label">Reports</span>
+                    </a>
+                </li>
+
+                {% elif session.role == 'student' %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'student.dashboard' %}active{% endif %}"
+                       {% if request.endpoint == 'student.dashboard' %}aria-current="page"{% endif %}
+                       aria-label="Dashboard"
+                       href="{{ url_for('student.dashboard') }}">
+                        <i class="bi bi-speedometer2 me-2" aria-hidden="true"></i><span class="nav-label">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint and request.endpoint in ['student.events', 'student.event_detail'] %}active{% endif %}"
+                       {% if request.endpoint and request.endpoint in ['student.events', 'student.event_detail'] %}aria-current="page"{% endif %}
+                       aria-label="Browse events"
+                       href="{{ url_for('student.events') }}">
+                        <i class="bi bi-calendar-event me-2" aria-hidden="true"></i><span class="nav-label">Events</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'student.registrations' %}active{% endif %}"
+                       {% if request.endpoint == 'student.registrations' %}aria-current="page"{% endif %}
+                       aria-label="My registrations"
+                       href="{{ url_for('student.registrations') }}">
+                        <i class="bi bi-journal-check me-2" aria-hidden="true"></i><span class="nav-label">My Registrations</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'student.profile' %}active{% endif %}"
+                       {% if request.endpoint == 'student.profile' %}aria-current="page"{% endif %}
+                       aria-label="Profile"
+                       href="{{ url_for('student.profile') }}">
+                        <i class="bi bi-person-gear me-2" aria-hidden="true"></i><span class="nav-label">Profile</span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form method="POST" action="{{ url_for('auth.logout') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-outline-light btn-sm w-100" aria-label="Sign out">
+                <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i><span class="nav-label">Sign out</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+    {% endif %}
+
+    <main class="{{ 'main-content' if current_user else 'guest-content' }}">
+        {% if current_user %}
+        <header class="app-topbar">
+            <div class="topbar-leading">
+                <button class="btn btn-outline-secondary sidebar-toggle" type="button" id="sidebarToggle"
+                        aria-label="Collapse navigation" aria-controls="sidebar" aria-expanded="true">
+                    <i class="bi bi-layout-sidebar-inset" aria-hidden="true"></i>
+                </button>
+                <nav class="topbar-breadcrumb" aria-label="Breadcrumb">
+                    <span>Workspace</span>
+                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    <span class="topbar-current">
+                        {{ request.endpoint.rsplit('.', 1)[-1]|replace('_', ' ')|title if request.endpoint else 'Home' }}
+                    </span>
+                </nav>
+            </div>
+            <div class="topbar-actions">
+                <label class="visually-hidden" for="themePicker">Color theme</label>
+                <select class="form-select form-select-sm theme-picker" id="themePicker" data-theme-picker>
+                    <option value="system">System theme</option>
+                    <option value="light">Light theme</option>
+                    <option value="dark">Dark theme</option>
+                </select>
+                <span class="visually-hidden" data-ui-announcement aria-live="polite"></span>
+                <span class="topbar-account d-none d-sm-flex">
+                    <span class="topbar-account-name">{{ current_user.full_name }}</span>
+                    <span class="topbar-account-role text-capitalize">{{ current_user.role }}</span>
+                </span>
+            </div>
+        </header>
+        {% else %}
+        <div class="guest-tools">
+            <label class="visually-hidden" for="themePicker">Color theme</label>
+            <select class="form-select form-select-sm theme-picker" id="themePicker" data-theme-picker>
+                <option value="system">System theme</option>
+                <option value="light">Light theme</option>
+                <option value="dark">Dark theme</option>
+            </select>
+            <span class="visually-hidden" data-ui-announcement aria-live="polite"></span>
+        </div>
+        {% endif %}
+        <div class="{{ 'container-fluid py-4' if current_user else 'container' }}">
+            {% include 'components/flash_messages.html' %}
+            {% block content %}{% endblock %}
+        </div>
+
+        {% if not current_user %}
+        <footer class="guest-footer">
+            A case study project as a requirement for IPT01
+        </footer>
+        {% endif %}
+
+        {% if current_user %}
+        <footer class="app-footer">
+            <div class="container-fluid">
+                <p class="mb-0 text-center text-muted small">
+                    A case study project as a requirement for IPT01
+                </p>
+            </div>
+        </footer>
+        {% endif %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

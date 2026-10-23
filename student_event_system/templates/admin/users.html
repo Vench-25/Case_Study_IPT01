@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - NEUST-TOC{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h2 class="h3 mb-0">User Management</h2>
+        <p class="text-muted mb-0">View, create, and manage system accounts</p>
+    </div>
+    <a href="{{ url_for('admin.user_new') }}" class="btn btn-primary">
+        <i class="bi bi-person-plus-fill me-1"></i> Add New User
+    </a>
+</div>
+
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('admin.users') }}" class="row g-2">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                    <label class="visually-hidden" for="user-search">Search users by name, email, or student number</label>
+                    <input id="user-search" type="search" name="search" class="form-control" placeholder="Search by name, email, or student no..." value="{{ search }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="visually-hidden" for="role-filter">Filter users by role</label>
+                <select id="role-filter" name="role" class="form-select">
+                    <option value="">All Roles</option>
+                    <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Administrator</option>
+                    <option value="officer" {% if role_filter == 'officer' %}selected{% endif %}>Officer</option>
+                    <option value="student" {% if role_filter == 'student' %}selected{% endif %}>Student</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary w-100">Filter</button>
+                {% if search or role_filter %}
+                <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">Reset</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        {% if users %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Student No</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td class="fw-semibold">{{ u.full_name }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.student_no or '-' }}</td>
+                        <td>
+                            {% if u.role == 'admin' %}
+                            <span class="badge bg-danger">Administrator</span>
+                            {% elif u.role == 'officer' %}
+                            <span class="badge bg-info text-dark">Officer</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Student</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-dark">Deactivated</span>
+                            {% endif %}
+                        </td>
+                        <td><small class="text-muted">{{ u.created_at }}</small></td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                                <a href="{{ url_for('admin.user_edit', user_id=u.user_id) }}" class="btn btn-sm btn-outline-primary" title="Edit User">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                {% if u.user_id != session.user_id %}
+                                    {% if u.is_active %}
+                                    <form method="POST" action="{{ url_for('admin.user_deactivate', user_id=u.user_id) }}" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Deactivate" data-confirm="Are you sure you want to deactivate {{ u.full_name }}?">
+                                            <i class="bi bi-person-x"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST" action="{{ url_for('admin.user_activate', user_id=u.user_id) }}" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Activate">
+                                            <i class="bi bi-person-check"></i>
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('admin.user_delete', user_id=u.user_id) }}" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete permanently"
+                                                data-confirm="Permanently delete {{ u.full_name }}? This cannot be undone.">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-people fs-1 d-block mb-2"></i>
+            No users match the search criteria.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% include 'components/pagination.html' %}
+{% endblock %}

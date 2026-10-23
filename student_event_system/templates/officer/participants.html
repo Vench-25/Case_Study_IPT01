@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Participants — {{ event.title }}{% endblock %}
+
+{% block content %}
+<header class="page-heading">
+    <div>
+        <div class="eyebrow">Participant roster · {{ event.organization_name }}</div>
+        <h1>{{ event.title }}</h1>
+        <p>{{ summary.total_registered }} active registration{{ '' if summary.total_registered == 1 else 's' }} · {{ event.start_at|datetimeformat }}</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ url_for('officer.event_attendance', event_id=event.event_id) }}" class="btn btn-primary">
+            <i class="bi bi-check2-square me-1" aria-hidden="true"></i> Mark attendance
+        </a>
+        <a href="{{ url_for('officer.event_export_csv', event_id=event.event_id) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-download me-1" aria-hidden="true"></i> Export CSV
+        </a>
+        <button type="button" class="btn btn-outline-secondary" data-print-trigger>
+            <i class="bi bi-printer me-1" aria-hidden="true"></i> Print
+        </button>
+    </div>
+</header>
+
+<div class="d-flex flex-wrap gap-4 border-top border-bottom py-3 mb-4" aria-label="Attendance totals">
+    <div><span class="text-muted small">Capacity</span><div class="fs-5 fw-semibold">{{ summary.total_registered }} / {{ event.capacity }}</div></div>
+    <div><span class="text-muted small">Present</span><div class="fs-5 fw-semibold text-success">{{ summary.present_count }}</div></div>
+    <div><span class="text-muted small">Absent</span><div class="fs-5 fw-semibold text-danger">{{ summary.absent_count }}</div></div>
+    <div><span class="text-muted small">Unmarked</span><div class="fs-5 fw-semibold">{{ summary.unmarked_count }}</div></div>
+</div>
+
+<section class="card data-table-card">
+    <div class="card-header py-3">
+        <h2 class="card-title">Registered participants</h2>
+        <label for="participant-search" class="form-label mt-2 mb-0">Find a participant</label>
+        <input id="participant-search" type="search" class="form-control form-control-sm mt-1"
+               placeholder="Name, student number, or email" data-table-search="participant-table">
+    </div>
+    {% if participants %}
+    <div class="table-responsive">
+        <table id="participant-table" class="table table-hover align-middle">
+            <thead><tr><th>#</th><th>Student number</th><th>Name</th><th>Email</th><th>Registration</th><th>Registered</th><th>Attendance</th></tr></thead>
+            <tbody>
+            {% for p in participants %}
+            <tr data-search-row>
+                <td>{{ loop.index }}</td>
+                <td>{{ p.student_no or 'N/A' }}</td>
+                <td class="fw-semibold">{{ p.full_name }}</td>
+                <td><small>{{ p.email }}</small></td>
+                <td>
+                    {% if p.status == 'registered' %}<span class="badge bg-success">Registered</span>
+                    {% else %}<span class="badge bg-secondary">Cancelled</span>{% endif %}
+                </td>
+                <td><small>{{ p.registered_at }}</small></td>
+                <td>
+                    {% if p.attendance_status == 'present' %}<span class="badge bg-success">Present</span>
+                    {% elif p.attendance_status == 'absent' %}<span class="badge bg-danger">Absent</span>
+                    {% else %}<span class="badge bg-secondary">Not marked</span>{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4">
+        <h3 class="h5">No registrations yet</h3>
+        <p class="text-muted mb-0">The roster will show participants after they register.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Create account — NEUST–TOC Events{% endblock %}
+
+{% block content %}
+<div class="auth-layout auth-page">
+    <section class="auth-brand" aria-label="NEUST–TOC Student Events">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}"
+             alt="Nueva Ecija University of Science and Technology seal" class="auth-seal">
+        <div class="auth-eyebrow mt-4">NEUST Talavera Off-Campus</div>
+        <h1>Student Event Management System</h1>
+        <p class="mt-3">Create a student account to browse organization events and manage your registrations.</p>
+    </section>
+    <section aria-labelledby="register-title">
+        <div class="card auth-card">
+            <div class="card-body">
+                <div class="eyebrow">Student event system</div>
+                <h2 id="register-title" class="mt-2 mb-1">Create your account</h2>
+                <p class="text-muted mb-4">Use your student details to get started.</p>
+                <form method="POST" action="{{ url_for('auth.register') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label for="student_no" class="form-label">Student number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="student_no" name="student_no"
+                               placeholder="e.g. TAL2024-00047" required autocomplete="off"
+                               value="{{ student_no or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label">Full name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="full_name" name="full_name"
+                               placeholder="Enter your full name" required autocomplete="name"
+                               value="{{ full_name or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               placeholder="you@example.edu.ph" required autocomplete="email"
+                               value="{{ email or '' }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="password" name="password"
+                               required minlength="8" autocomplete="new-password">
+                        <div class="form-text">Use at least 8 characters.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                               required minlength="8" autocomplete="new-password">
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-primary auth-submit">Create account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <p class="text-center mt-3 text-muted">
+            Already registered? <a href="{{ url_for('auth.login') }}" class="fw-semibold">Sign in</a>
+        </p>
+    </section>
+</div>
+{% endblock %}
