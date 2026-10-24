@@ -5,6 +5,10 @@
 {% block content %}
 <div class="auth-layout auth-page">
     <section class="auth-brand" aria-label="NEUST–TOC Student Events">
+        {% if campus_photo_available %}
+        <div class="campus-photo" aria-hidden="true"
+             style="--campus-image: url('{{ url_for('static', filename='images/campus/neust-toc-campus.jpg') }}')"></div>
+        {% endif %}
         <img src="{{ url_for('static', filename='images/logo.jpg') }}"
              alt="Nueva Ecija University of Science and Technology seal" class="auth-seal">
         <div class="auth-eyebrow mt-4">NEUST Talavera Off-Campus</div>

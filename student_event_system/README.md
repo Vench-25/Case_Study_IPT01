@@ -118,22 +118,6 @@ python create_admin.py
 
 Follow the prompts to enter admin name, email, and password.
 
-### 8b. (Optional) Seed Demonstration Data
-
-For testing and grading demonstration purposes, you can optionally seed sample accounts, organizations, events, and registrations:
-
-```powershell
-python seed_data.py
-```
-
-This creates:
-- **Admin**: `admin@neust-toc.example.com`
-- **Officer**: `officer.miguel@neust-toc.example.com` (Technology and Innovation Society President)
-- **Officer**: `officer.patricia@neust-toc.example.com` (Business and Entrepreneurship Circle President, Student Council Officer)
-- **Students**: `student.angela@neust-toc.example.com`, `student.joshua@neust-toc.example.com`, and `student.nicole@neust-toc.example.com`
-
-All seeded accounts use the password `Password123!`. Names, organizations, events, and `.example.com` email addresses are fictional demonstration data, not official NEUST records or announcements. Event locations refer generally to the Talavera Off-Campus; confirm real venues and schedules with the campus before using them.
-
 ### 9. Start the Development Server
 
 ```powershell
@@ -223,6 +207,12 @@ To reset the database during development:
 1. Delete `database/event_system.db`
 2. Run `python init_db.py`
 3. Run `python create_admin.py`
+
+## Capstone Documentation
+
+A formal capstone documentation aligned with the DST capstone requirements is available here:
+
+- [CAPSTONE_DOCUMENTATION.md](./CAPSTONE_DOCUMENTATION.md)
 
 ## Project Structure
 
