@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} - Event Workspace{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('officer.events') }}" class="btn btn-outline-secondary btn-sm mb-3">
+    <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Managed events
+</a>
+<header class="page-heading">
+    <div>
+        <div class="eyebrow">{{ event.organization_name }} · Event workspace</div>
+        <h1>{{ event.title }}</h1>
+        <p>{{ event.start_at|datetimeformat }} · {{ event.venue }}</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ url_for('officer.event_participants', event_id=event.event_id) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-people me-1" aria-hidden="true"></i> Participants
+        </a>
+        <a href="{{ url_for('officer.event_attendance', event_id=event.event_id) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-check2-square me-1" aria-hidden="true"></i> Attendance
+        </a>
+    </div>
+</header>
+
+<div class="row g-4">
+    <article class="col-lg-8">
+        <section class="border-top pt-3 mb-4">
+            <h2 class="h4">Event information</h2>
+            <p style="white-space: pre-line;">{{ event.description }}</p>
+        </section>
+        <section class="border-top pt-3">
+            <h2 class="h4 mb-3">Schedule and capacity</h2>
+            <dl class="row mb-0">
+                <dt class="col-sm-4 text-muted">Starts</dt><dd class="col-sm-8">{{ event.start_at|datetimeformat }}</dd>
+                <dt class="col-sm-4 text-muted">Ends</dt><dd class="col-sm-8">{{ event.end_at|datetimeformat if event.end_at else 'Not specified' }}</dd>
+                <dt class="col-sm-4 text-muted">Registration deadline</dt><dd class="col-sm-8">{{ event.registration_deadline|datetimeformat }}</dd>
+                <dt class="col-sm-4 text-muted">Venue</dt><dd class="col-sm-8">{{ event.venue }}</dd>
+                <dt class="col-sm-4 text-muted">Capacity</dt><dd class="col-sm-8">{{ event.capacity }} participants</dd>
+            </dl>
+        </section>
+    </article>
+    <aside class="col-lg-4">
+        <section class="card">
+            <div class="card-body p-3 p-lg-4">
+                <div class="eyebrow">Status and actions</div>
+                {% if event.status == 'published' %}<span class="badge bg-success mb-3">Published</span>
+                {% elif event.status == 'completed' %}<span class="badge bg-info mb-3">Completed</span>
+                {% elif event.status == 'cancelled' %}<span class="badge bg-danger mb-3">Cancelled</span>
+                {% else %}<span class="badge bg-secondary mb-3">Draft</span>{% endif %}
+                <div class="d-grid gap-2">
+                    {% if event.status in ('draft', 'published') %}
+                    <a href="{{ url_for('officer.event_edit', event_id=event.event_id) }}" class="btn btn-outline-primary">Edit details</a>
+                    {% endif %}
+                    {% if event.status == 'draft' %}
+                    <form method="POST" action="{{ url_for('officer.event_publish', event_id=event.event_id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary w-100" data-confirm="Publish this event to students?">Publish event</button>
+                    </form>
+                    {% endif %}
+                    {% if event.status == 'published' %}
+                    <form method="POST" action="{{ url_for('officer.event_complete', event_id=event.event_id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-success w-100" data-confirm="Mark this event as completed?">Mark completed</button>
+                    </form>
+                    {% endif %}
+                    {% if event.status in ('draft', 'published') %}
+                    <form method="POST" action="{{ url_for('officer.event_cancel', event_id=event.event_id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-danger w-100" data-confirm="Are you sure you want to cancel this event?">Cancel event</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </aside>
+</div>
+{% endblock %}

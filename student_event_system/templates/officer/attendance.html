@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance — {{ event.title }}{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('officer.event_participants', event_id=event.event_id) }}" class="btn btn-outline-secondary btn-sm mb-3">
+    <i class="bi bi-arrow-left me-1" aria-hidden="true"></i> Participant roster
+</a>
+<header class="page-heading">
+    <div>
+        <div class="eyebrow">Attendance · {{ event.organization_name }}</div>
+        <h1>{{ event.title }}</h1>
+        <p>Mark attendance for registered participants.</p>
+    </div>
+    <button type="button" class="btn btn-outline-secondary" data-print-trigger>
+        <i class="bi bi-printer me-1" aria-hidden="true"></i> Print
+    </button>
+</header>
+
+<div class="d-flex flex-wrap gap-4 border-top border-bottom py-3 mb-4" aria-label="Attendance totals">
+    <div><span class="text-muted small">Registered</span><div class="fs-5 fw-semibold">{{ summary.total_registered }}</div></div>
+    <div><span class="text-muted small">Present</span><div class="fs-5 fw-semibold text-success">{{ summary.present_count }}</div></div>
+    <div><span class="text-muted small">Absent</span><div class="fs-5 fw-semibold text-danger">{{ summary.absent_count }}</div></div>
+    <div><span class="text-muted small">Unmarked</span><div class="fs-5 fw-semibold">{{ summary.unmarked_count }}</div></div>
+</div>
+
+<form method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <section class="card data-table-card">
+        <div class="card-header d-flex flex-wrap align-items-end justify-content-between gap-3 py-3">
+            <div>
+                <h2 class="card-title">Participant check-in</h2>
+                <label for="attendance-search" class="form-label mt-2 mb-0">Find a participant</label>
+                <input id="attendance-search" class="form-control form-control-sm mt-1" type="search"
+                       placeholder="Name, student number, or email" data-table-search="attendance-table">
+            </div>
+            {% if attendance %}
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1" aria-hidden="true"></i> Save attendance
+            </button>
+            {% endif %}
+        </div>
+        {% if attendance %}
+        <div class="table-responsive">
+            <table id="attendance-table" class="table table-hover align-middle">
+                <thead><tr><th>Student number</th><th>Name</th><th>Email</th><th>Current status</th><th>Mark attendance</th></tr></thead>
+                <tbody>
+                {% for row in attendance %}
+                <tr data-search-row>
+                    <td>{{ row.student_no or 'N/A' }}</td>
+                    <td class="fw-semibold">{{ row.full_name }}</td>
+                    <td><small>{{ row.email }}</small></td>
+                    <td>
+                        {% if row.attendance_status == 'present' %}<span class="badge bg-success">Present</span>
+                        {% elif row.attendance_status == 'absent' %}<span class="badge bg-danger">Absent</span>
+                        {% else %}<span class="badge bg-secondary">Unmarked</span>{% endif %}
+                        {% if row.marked_at %}<small class="d-block text-muted">{{ row.marked_at }}</small>{% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group" aria-label="Attendance for {{ row.full_name }}">
+                            <input type="radio" class="btn-check" name="attendance_{{ row.registration_id }}" id="present_{{ row.registration_id }}" value="present" {% if row.attendance_status == 'present' %}checked{% endif %}>
+                            <label class="btn btn-outline-success btn-sm attendance-choice" for="present_{{ row.registration_id }}">Present</label>
+                            <input type="radio" class="btn-check" name="attendance_{{ row.registration_id }}" id="absent_{{ row.registration_id }}" value="absent" {% if row.attendance_status == 'absent' %}checked{% endif %}>
+                            <label class="btn btn-outline-danger btn-sm attendance-choice" for="absent_{{ row.registration_id }}">Absent</label>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-4">
+            <h3 class="h5">No active registrants</h3>
+            <p class="text-muted mb-0">Participants must register before attendance can be marked.</p>
+        </div>
+        {% endif %}
+        {% if attendance %}
+        <div class="card-footer text-end py-3">
+            <button type="submit" class="btn btn-primary">Save attendance</button>
+        </div>
+        {% endif %}
+    </section>
+</form>
+{% endblock %}

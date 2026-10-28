@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Events - NEUST-TOC{% endblock %}
+
+{% block content %}
+<header class="page-heading">
+    <div>
+        <div class="eyebrow">Organization operations</div>
+        <h1>Events</h1>
+        <p>Search and manage the events attached to your organization assignments.</p>
+    </div>
+    <a href="{{ url_for('officer.event_new') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i> Create event
+    </a>
+</header>
+
+<form method="GET" action="{{ url_for('officer.events') }}" class="event-filters mb-4">
+    <div class="row g-2 align-items-end">
+        <div class="col-lg-4">
+            <label for="managed-search" class="form-label">Search events</label>
+            <input id="managed-search" type="search" name="search" class="form-control"
+                   placeholder="Title or description" value="{{ search }}">
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <label for="managed-status" class="form-label">Status</label>
+            <select id="managed-status" name="status" class="form-select">
+                <option value="">All statuses</option>
+                <option value="draft" {% if status == 'draft' %}selected{% endif %}>Draft</option>
+                <option value="published" {% if status == 'published' %}selected{% endif %}>Published</option>
+                <option value="completed" {% if status == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="cancelled" {% if status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <label for="managed-org" class="form-label">Organization</label>
+            <select id="managed-org" name="org_id" class="form-select">
+                <option value="">All assigned organizations</option>
+                {% for org in organizations %}
+                <option value="{{ org.organization_id }}" {% if org_id == org.organization_id|string %}selected{% endif %}>{{ org.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1">Apply</button>
+            {% if search or status or org_id %}
+            <a href="{{ url_for('officer.events') }}" class="btn btn-outline-secondary">Clear</a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+
+<section class="card data-table-card">
+    <div class="card-header d-flex justify-content-between align-items-center py-3">
+        <h2 class="card-title">Managed events</h2>
+        <span class="text-muted small">{{ total }} result{{ '' if total == 1 else 's' }}</span>
+    </div>
+    {% if events %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead><tr><th>Event and venue</th><th>Organization</th><th>Schedule</th><th>Status</th><th>Registered</th><th class="text-end">Actions</th></tr></thead>
+            <tbody>
+            {% for evt in events %}
+            <tr>
+                <td>
+                    <div class="fw-semibold">{{ evt.title }}</div>
+                    <small class="text-muted">{{ evt.venue }}</small>
+                </td>
+                <td>{{ evt.organization_name }}</td>
+                <td><small>{{ evt.start_at|datetimeformat }}</small></td>
+                <td>
+                    {% if evt.status == 'published' %}<span class="badge bg-success">Published</span>
+                    {% elif evt.status == 'completed' %}<span class="badge bg-info">Completed</span>
+                    {% elif evt.status == 'cancelled' %}<span class="badge bg-danger">Cancelled</span>
+                    {% else %}<span class="badge bg-secondary">Draft</span>{% endif %}
+                </td>
+                <td>{{ evt.reg_count }} / {{ evt.capacity }}</td>
+                <td>
+                    <div class="table-actions">
+                        {% if evt.status in ('published', 'completed') %}
+                        <a href="{{ url_for('officer.event_participants', event_id=evt.event_id) }}" class="btn btn-outline-secondary btn-sm" aria-label="Participants for {{ evt.title }}"><i class="bi bi-people" aria-hidden="true"></i></a>
+                        <a href="{{ url_for('officer.event_attendance', event_id=evt.event_id) }}" class="btn btn-outline-success btn-sm" aria-label="Attendance for {{ evt.title }}"><i class="bi bi-check2-square" aria-hidden="true"></i></a>
+                        <a href="{{ url_for('officer.event_report', event_id=evt.event_id) }}" class="btn btn-outline-secondary btn-sm" aria-label="Report for {{ evt.title }}"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></a>
+                        <a href="{{ url_for('officer.event_export_csv', event_id=evt.event_id) }}" class="btn btn-outline-secondary btn-sm" aria-label="Export participants for {{ evt.title }}"><i class="bi bi-download" aria-hidden="true"></i></a>
+                        {% endif %}
+                        {% if evt.status in ('draft', 'published') %}
+                        <a href="{{ url_for('officer.event_edit', event_id=evt.event_id) }}" class="btn btn-outline-primary btn-sm" aria-label="Edit {{ evt.title }}"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                        {% endif %}
+                        {% if evt.status == 'draft' %}
+                        <form method="POST" action="{{ url_for('officer.event_publish', event_id=evt.event_id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-outline-success btn-sm" aria-label="Publish {{ evt.title }}" data-confirm="Publish this event to students?"><i class="bi bi-send" aria-hidden="true"></i></button>
+                        </form>
+                        {% endif %}
+                        {% if evt.status == 'published' %}
+                        <form method="POST" action="{{ url_for('officer.event_complete', event_id=evt.event_id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-outline-success btn-sm" aria-label="Complete {{ evt.title }}" data-confirm="Mark this event as completed?"><i class="bi bi-check-lg" aria-hidden="true"></i></button>
+                        </form>
+                        {% endif %}
+                        {% if evt.status in ('draft', 'published') %}
+                        <form method="POST" action="{{ url_for('officer.event_cancel', event_id=evt.event_id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-outline-danger btn-sm" aria-label="Cancel {{ evt.title }}" data-confirm="Are you sure you want to cancel this event?"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4">
+        <h3 class="h5">No events match these filters</h3>
+        <p class="text-muted mb-0">Adjust the search or status, or create an event.</p>
+    </div>
+    {% endif %}
+</section>
+{% include 'components/pagination.html' %}
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}My Registrations - NEUST-TOC{% endblock %}
+
+{% block content %}
+<header class="page-heading">
+    <div>
+        <div class="eyebrow">Student events</div>
+        <h1>My registrations</h1>
+        <p>Review your registration status, event schedule, and venue.</p>
+    </div>
+    <a href="{{ url_for('student.events') }}" class="btn btn-primary">
+        <i class="bi bi-search me-1" aria-hidden="true"></i> Browse events
+    </a>
+</header>
+
+<section class="card data-table-card">
+    {% if registrations %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead><tr><th>Event</th><th>Organization</th><th>Schedule</th><th>Venue</th><th>Registration</th><th>Event status</th><th class="text-end">Actions</th></tr></thead>
+            <tbody>
+            {% for r in registrations %}
+            <tr>
+                <td>
+                    <a href="{{ url_for('student.event_detail', event_id=r.event_id) }}" class="fw-semibold text-decoration-none">{{ r.event_title }}</a>
+                    <small class="text-muted d-block">Registered {{ r.registered_at }}</small>
+                </td>
+                <td>{{ r.organization_name }}</td>
+                <td><small>{{ r.event_start|datetimeformat }}</small></td>
+                <td><small>{{ r.venue }}</small></td>
+                <td>
+                    {% if r.status == 'registered' %}<span class="badge bg-success">Registered</span>
+                    {% else %}<span class="badge bg-secondary">Cancelled</span>{% endif %}
+                </td>
+                <td>
+                    {% if r.event_status == 'published' %}<span class="badge bg-success">Published</span>
+                    {% elif r.event_status == 'completed' %}<span class="badge bg-info">Completed</span>
+                    {% elif r.event_status == 'cancelled' %}<span class="badge bg-danger">Cancelled</span>
+                    {% else %}<span class="badge bg-secondary">Draft</span>{% endif %}
+                </td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{{ url_for('student.event_detail', event_id=r.event_id) }}" class="btn btn-sm btn-outline-primary" aria-label="View {{ r.event_title }}">Details</a>
+                        {% if r.status == 'registered' and r.event_status == 'published' %}
+                        <form method="POST" action="{{ url_for('student.registration_cancel', registration_id=r.registration_id) }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    data-confirm="Are you sure you want to cancel your registration for {{ r.event_title }}?">
+                                Cancel
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-4">
+        <h2 class="h4">No registrations found</h2>
+        <p class="text-muted">You have not registered for any events yet.</p>
+        <a href="{{ url_for('student.events') }}" class="btn btn-outline-primary">Browse available events</a>
+    </div>
+    {% endif %}
+</section>
+{% include 'components/pagination.html' %}
+{% endblock %}

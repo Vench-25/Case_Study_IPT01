@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Administration - NEUST-TOC{% endblock %}
+
+{% block content %}
+<header class="workspace-intro">
+    <div>
+        <div class="eyebrow">System administration</div>
+        <h1>Administration</h1>
+        <p>Current account, organization, event, and registration records.</p>
+    </div>
+    <a href="{{ url_for('admin.reports') }}" class="btn btn-outline-primary">System reports</a>
+</header>
+
+<div class="d-flex flex-wrap gap-4 border-top border-bottom py-3 mb-4" aria-label="System totals">
+    <div><span class="text-muted small">Active users</span><div class="fs-5 fw-semibold">{{ stats.active_users }} <small class="text-muted fs-6">/ {{ stats.total_users }}</small></div></div>
+    <div><span class="text-muted small">Active organizations</span><div class="fs-5 fw-semibold">{{ stats.active_organizations }} <small class="text-muted fs-6">/ {{ stats.total_organizations }}</small></div></div>
+    <div><span class="text-muted small">Published events</span><div class="fs-5 fw-semibold">{{ stats.published_events }} <small class="text-muted fs-6">/ {{ stats.total_events }}</small></div></div>
+    <div><span class="text-muted small">Active registrations</span><div class="fs-5 fw-semibold">{{ stats.total_registrations }}</div></div>
+</div>
+
+<div class="row g-4">
+    <section class="col-xl-7">
+        <div class="section-rule mb-2">
+            <h2>Upcoming published events</h2>
+        </div>
+        {% if stats.upcoming_events %}
+        <div class="table-responsive border-bottom">
+            <table class="table table-hover align-middle">
+                <thead><tr><th>Event</th><th>Organization</th><th>Date</th><th>Capacity</th></tr></thead>
+                <tbody>
+                {% for evt in stats.upcoming_events %}
+                <tr>
+                    <td class="fw-semibold">{{ evt.title }}</td>
+                    <td>{{ evt.organization_name }}</td>
+                    <td><small>{{ evt.start_at|datetimeformat }}</small></td>
+                    <td>{{ evt.capacity }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted border-bottom py-3">There are no upcoming published events.</p>
+        {% endif %}
+        <div class="d-flex flex-wrap gap-3 mt-3">
+            <a href="{{ url_for('admin.users') }}">Manage users <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+            <a href="{{ url_for('admin.organizations') }}">Manage organizations <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </div>
+    </section>
+    <section class="col-xl-5">
+        <div class="section-rule mb-2">
+            <h2>Recent audit activity</h2>
+        </div>
+        {% if stats.recent_activity %}
+        <ol class="list-unstyled mb-0">
+            {% for act in stats.recent_activity %}
+            <li class="py-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                    <strong class="text-break">{{ act.action|replace('_', ' ')|title }}</strong>
+                    <small class="text-muted text-nowrap">{{ act.created_at }}</small>
+                </div>
+                {% if act.details %}<p class="small mb-1 mt-1">{{ act.details }}</p>{% endif %}
+                {% if act.full_name %}<small class="text-muted">{{ act.full_name }}</small>{% endif %}
+            </li>
+            {% endfor %}
+        </ol>
+        {% else %}
+        <p class="text-muted py-3">No audit activity has been recorded.</p>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}
