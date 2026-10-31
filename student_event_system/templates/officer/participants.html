@@ -5,7 +5,7 @@
 {% block content %}
 <header class="page-heading">
     <div>
-        <div class="eyebrow">Participant roster · {{ event.organization_name }}</div>
+        <div class="page-context">{{ event.organization_name }}</div>
         <h1>{{ event.title }}</h1>
         <p>{{ summary.total_registered }} active registration{{ '' if summary.total_registered == 1 else 's' }} · {{ event.start_at|datetimeformat }}</p>
     </div>
@@ -22,11 +22,11 @@
     </div>
 </header>
 
-<div class="d-flex flex-wrap gap-4 border-top border-bottom py-3 mb-4" aria-label="Attendance totals">
-    <div><span class="text-muted small">Capacity</span><div class="fs-5 fw-semibold">{{ summary.total_registered }} / {{ event.capacity }}</div></div>
-    <div><span class="text-muted small">Present</span><div class="fs-5 fw-semibold text-success">{{ summary.present_count }}</div></div>
-    <div><span class="text-muted small">Absent</span><div class="fs-5 fw-semibold text-danger">{{ summary.absent_count }}</div></div>
-    <div><span class="text-muted small">Unmarked</span><div class="fs-5 fw-semibold">{{ summary.unmarked_count }}</div></div>
+<div class="stat-strip" aria-label="Attendance totals">
+    <div><span class="stat-label">Capacity</span><div class="stat-value">{{ summary.total_registered }} / {{ event.capacity }}</div></div>
+    <div><span class="stat-label">Present</span><div class="stat-value text-success">{{ summary.present_count }}</div></div>
+    <div><span class="stat-label">Absent</span><div class="stat-value text-danger">{{ summary.absent_count }}</div></div>
+    <div><span class="stat-label">Unmarked</span><div class="stat-value">{{ summary.unmarked_count }}</div></div>
 </div>
 
 <section class="card data-table-card">

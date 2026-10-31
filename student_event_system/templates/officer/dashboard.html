@@ -5,7 +5,6 @@
 {% block content %}
 <header class="workspace-intro">
     <div>
-        <div class="eyebrow">Organization operations</div>
         <h1>Officer workspace</h1>
         <p>Review event activity and move directly to the work that needs attention.</p>
     </div>
@@ -14,11 +13,11 @@
     </a>
 </header>
 
-<div class="d-flex flex-wrap gap-4 border-top border-bottom py-3 mb-4" aria-label="Event totals">
-    <div><span class="text-muted small">Upcoming</span><div class="fs-5 fw-semibold">{{ stats.upcoming_events }}</div></div>
-    <div><span class="text-muted small">Active registrations</span><div class="fs-5 fw-semibold">{{ stats.active_registrations }}</div></div>
-    <div><span class="text-muted small">Drafts</span><div class="fs-5 fw-semibold">{{ stats.draft_events }}</div></div>
-    <div><span class="text-muted small">Managed events</span><div class="fs-5 fw-semibold">{{ stats.total_events }}</div></div>
+<div class="stat-strip" aria-label="Event totals">
+    <div><span class="stat-label">Upcoming</span><div class="stat-value">{{ stats.upcoming_events }}</div></div>
+    <div><span class="stat-label">Active registrations</span><div class="stat-value">{{ stats.active_registrations }}</div></div>
+    <div><span class="stat-label">Drafts</span><div class="stat-value">{{ stats.draft_events }}</div></div>
+    <div><span class="stat-label">Managed events</span><div class="stat-value">{{ stats.total_events }}</div></div>
 </div>
 
 <section class="card data-table-card">

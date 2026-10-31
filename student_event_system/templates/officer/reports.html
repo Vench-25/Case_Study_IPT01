@@ -20,11 +20,11 @@
     </div>
 </div>
 
-<div class="d-flex flex-wrap gap-4 border-top border-bottom py-3 mb-4" aria-label="Attendance totals">
-    <div><span class="text-muted small">Active registrants</span><div class="fs-5 fw-semibold">{{ report.registered_count }} / {{ event.capacity }}</div></div>
-    <div><span class="text-muted small">Present</span><div class="fs-5 fw-semibold text-success">{{ report.present_count }}</div></div>
-    <div><span class="text-muted small">Absent</span><div class="fs-5 fw-semibold text-danger">{{ report.absent_count }}</div></div>
-    <div><span class="text-muted small">Unmarked</span><div class="fs-5 fw-semibold">{{ report.unmarked_count }}</div></div>
+<div class="stat-strip" aria-label="Attendance totals">
+    <div><span class="stat-label">Active registrants</span><div class="stat-value">{{ report.registered_count }} / {{ event.capacity }}</div></div>
+    <div><span class="stat-label">Present</span><div class="stat-value text-success">{{ report.present_count }}</div></div>
+    <div><span class="stat-label">Absent</span><div class="stat-value text-danger">{{ report.absent_count }}</div></div>
+    <div><span class="stat-label">Unmarked</span><div class="stat-value">{{ report.unmarked_count }}</div></div>
 </div>
 
 <div class="card shadow-sm report-table-card">

@@ -8,7 +8,7 @@
 </a>
 <header class="page-heading">
     <div>
-        <div class="eyebrow">Attendance · {{ event.organization_name }}</div>
+        <div class="page-context">{{ event.organization_name }}</div>
         <h1>{{ event.title }}</h1>
         <p>Mark attendance for registered participants.</p>
     </div>
@@ -17,11 +17,11 @@
     </button>
 </header>
 
-<div class="d-flex flex-wrap gap-4 border-top border-bottom py-3 mb-4" aria-label="Attendance totals">
-    <div><span class="text-muted small">Registered</span><div class="fs-5 fw-semibold">{{ summary.total_registered }}</div></div>
-    <div><span class="text-muted small">Present</span><div class="fs-5 fw-semibold text-success">{{ summary.present_count }}</div></div>
-    <div><span class="text-muted small">Absent</span><div class="fs-5 fw-semibold text-danger">{{ summary.absent_count }}</div></div>
-    <div><span class="text-muted small">Unmarked</span><div class="fs-5 fw-semibold">{{ summary.unmarked_count }}</div></div>
+<div class="stat-strip" aria-label="Attendance totals">
+    <div><span class="stat-label">Registered</span><div class="stat-value">{{ summary.total_registered }}</div></div>
+    <div><span class="stat-label">Present</span><div class="stat-value text-success">{{ summary.present_count }}</div></div>
+    <div><span class="stat-label">Absent</span><div class="stat-value text-danger">{{ summary.absent_count }}</div></div>
+    <div><span class="stat-label">Unmarked</span><div class="stat-value">{{ summary.unmarked_count }}</div></div>
 </div>
 
 <form method="POST">
