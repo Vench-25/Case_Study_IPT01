@@ -6,7 +6,6 @@
 <div class="form-shell">
     <header class="page-heading">
         <div>
-            <div class="eyebrow">Student account</div>
             <h1>Profile and security</h1>
             <p>Update your contact details or change your password.</p>
         </div>
@@ -16,7 +15,7 @@
                 <form method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Basic Information</h6>
+                    <h6 class="fw-semibold text-muted mb-3">Basic Information</h6>
                     <div class="mb-3">
                         <label for="full_name" class="form-label">Full Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="full_name" name="full_name"
@@ -39,7 +38,7 @@
 
                     <hr class="my-4">
 
-                    <h6 class="fw-bold text-muted small text-uppercase mb-3">Security &amp; Password Update</h6>
+                    <h6 class="fw-semibold text-muted mb-3">Security &amp; Password Update</h6>
                     <p class="small text-muted">Leave the password fields blank if you do not wish to change your current password.</p>
 
                     <div class="mb-3">

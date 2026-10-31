@@ -24,6 +24,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block extra_css %}{% endblock %}
 </head>
@@ -44,14 +47,9 @@
         </div>
 
         <div class="sidebar-user">
-            <div class="d-flex align-items-center">
-                <div class="user-avatar me-2">
-                    <i class="bi bi-person-circle fs-3" aria-hidden="true"></i>
-                </div>
-                <div class="sidebar-user-copy">
-                    <div class="fw-semibold text-truncate" style="max-width: 160px;">{{ current_user.full_name }}</div>
-                    <small class="opacity-75 text-capitalize">{{ current_user.role }}</small>
-                </div>
+            <div class="sidebar-user-copy">
+                <div class="fw-semibold text-truncate">{{ current_user.full_name }}</div>
+                <small class="text-capitalize opacity-75">{{ current_user.role }}</small>
             </div>
         </div>
 
@@ -173,13 +171,11 @@
                         aria-label="Collapse navigation" aria-controls="sidebar" aria-expanded="true">
                     <i class="bi bi-layout-sidebar-inset" aria-hidden="true"></i>
                 </button>
-                <nav class="topbar-breadcrumb" aria-label="Breadcrumb">
-                    <span>Workspace</span>
-                    <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                <div class="topbar-breadcrumb">
                     <span class="topbar-current">
                         {{ request.endpoint.rsplit('.', 1)[-1]|replace('_', ' ')|title if request.endpoint else 'Home' }}
                     </span>
-                </nav>
+                </div>
             </div>
             <div class="topbar-actions">
                 <label class="visually-hidden" for="themePicker">Color theme</label>

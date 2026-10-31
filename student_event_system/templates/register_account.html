@@ -4,22 +4,28 @@
 
 {% block content %}
 <div class="auth-layout auth-page">
-    <section class="auth-brand" aria-label="NEUST–TOC Student Events">
+    <section class="auth-brand{% if campus_photo_available %} has-campus-photo{% endif %}" aria-label="NEUST–TOC Student Events">
         {% if campus_photo_available %}
         <div class="campus-photo" aria-hidden="true"
              style="--campus-image: url('{{ url_for('static', filename='images/campus/neust-toc-campus.jpg') }}')"></div>
         {% endif %}
-        <img src="{{ url_for('static', filename='images/logo.jpg') }}"
-             alt="Nueva Ecija University of Science and Technology seal" class="auth-seal">
-        <div class="auth-eyebrow mt-4">NEUST Talavera Off-Campus</div>
-        <h1>Student Event Management System</h1>
-        <p class="mt-3">Create a student account to browse organization events and manage your registrations.</p>
+        <div class="auth-brand-head">
+            <img src="{{ url_for('static', filename='images/logo.jpg') }}"
+                 alt="Nueva Ecija University of Science and Technology seal" class="auth-seal">
+            <div>
+                <strong>Nueva Ecija University of Science and Technology</strong>
+                <span>Talavera Off-Campus</span>
+            </div>
+        </div>
+        <div>
+            <h1>Student Event Management System</h1>
+            <p>Create a student account to browse organization events and manage your registrations.</p>
+        </div>
     </section>
     <section aria-labelledby="register-title">
         <div class="card auth-card">
             <div class="card-body">
-                <div class="eyebrow">Student event system</div>
-                <h2 id="register-title" class="mt-2 mb-1">Create your account</h2>
+                <h2 id="register-title">Create your account</h2>
                 <p class="text-muted mb-4">Use your student details to get started.</p>
                 <form method="POST" action="{{ url_for('auth.register') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
