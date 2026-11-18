@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Create Organization' if action == 'new' else 'Manage ' ~ org.name }} - NEUST-TOC{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+    <div>
+        <h2 class="h3 mb-0">{{ 'Create Organization' if action == 'new' else 'Manage Organization' }}</h2>
+        <p class="text-muted mb-0">
+            {% if is_president_manager|default(false) %}
+            Manage your organization details and member roles.
+            {% else %}
+            Configure organization details, status, and leadership.
+            {% endif %}
+        </p>
+    </div>
+    {% if not is_president_manager|default(false) or president_has_multiple_organizations|default(false) %}
+    <a href="{{ url_for('officer.president_organizations') if is_president_manager|default(false) else url_for('admin.organizations') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i> Back to Organizations
+    </a>
+    {% endif %}
+</div>
+
+<div class="row g-4">
+    
+    <div class="col-lg-{{ '12' if action == 'new' else '6' }}">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0 fw-bold">Organization Details</h5>
+                {% if action == 'edit' and not is_president_manager|default(false) %}
+                    {% if org.is_active %}
+                    <span class="badge bg-success">Active</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action_type" value="update">
+
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Organization Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name"
+                               value="{{ name if name is defined else (org.name if org else '') }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="contact_email" class="form-label">Contact Email</label>
+                        <input type="email" class="form-control" id="contact_email" name="contact_email"
+                               placeholder="xxxxx@gmail.com"
+                               value="{{ contact_email if contact_email is defined else (org.contact_email if org else '') }}">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Description / Mission</label>
+                        <textarea class="form-control" id="description" name="description" rows="4">{{ description if description is defined else (org.description if org else '') }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-check2-circle me-1"></i> {{ 'Create Organization' if action == 'new' else 'Save Changes' }}
+                    </button>
+                </form>
+
+                {% if action == 'edit' and not is_president_manager|default(false) %}
+                <hr class="my-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="fw-semibold">Organization Status</span>
+                        <div class="small text-muted">Inactive organizations cannot publish new events.</div>
+                    </div>
+                    <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="action_type" value="toggle_active">
+                        <button type="submit" class="btn btn-sm {{ 'btn-outline-danger' if org.is_active else 'btn-outline-success' }}"
+                                data-confirm="Are you sure you want to {{ 'deactivate' if org.is_active else 'activate' }} this organization?">
+                            {{ 'Deactivate' if org.is_active else 'Activate' }}
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {% if action == 'edit' %}
+    
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100 organization-roster-card">
+            <div class="card-header bg-white py-3">
+                <h5 id="organization-roster-title" class="card-title mb-0 fw-bold">Membership &amp; Officer Roster ({{ members|length }})</h5>
+            </div>
+            <div class="card-body p-0 organization-roster-scroll" role="region" aria-labelledby="organization-roster-title" tabindex="0">
+                {% if members %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Org Role</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for m in members %}
+                            <tr>
+                                <td class="fw-semibold">
+                                    {{ m.full_name }}
+                                    {% if m.student_no %}<br><small class="text-muted">{{ m.student_no }}</small>{% endif %}
+                                </td>
+                                <td><small>{{ m.email }}</small></td>
+                                <td>
+                                    {% if m.member_role == 'president' and is_president_manager|default(false) %}
+                                    <span class="badge bg-primary">President</span>
+                                    <span class="small text-muted">Role managed by an administrator</span>
+                                    {% elif is_president_manager|default(false) %}
+                                    <form method="POST" action="{{ url_for('officer.president_add_member', organization_id=org.organization_id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="student_id" value="{{ m.user_id }}">
+                                        <label class="visually-hidden" for="member-role-{{ m.user_id }}">Organization role for {{ m.full_name }}</label>
+                                        <div class="d-flex gap-2">
+                                            <select id="member-role-{{ m.user_id }}" name="member_role" class="form-select form-select-sm">
+                                                <option value="member" {% if m.member_role == 'member' %}selected{% endif %}>Member</option>
+                                                <option value="officer" {% if m.member_role == 'officer' %}selected{% endif %}>Officer</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                        </div>
+                                    </form>
+                                    {% elif m.member_role == 'president' %}
+                                    <form method="POST" action="{{ url_for('admin.organization_add_member', organization_id=org.organization_id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="student_id" value="{{ m.user_id }}">
+                                        <label class="visually-hidden" for="member-role-{{ m.user_id }}">Organization role for {{ m.full_name }}</label>
+                                        <div class="d-flex gap-2">
+                                            <select id="member-role-{{ m.user_id }}" name="member_role" class="form-select form-select-sm">
+                                                <option value="member">Member</option>
+                                                <option value="officer">Officer</option>
+                                                <option value="president" selected>President</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                        </div>
+                                    </form>
+                                    {% elif m.member_role == 'officer' %}
+                                    <form method="POST" action="{{ url_for('admin.organization_add_member', organization_id=org.organization_id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="student_id" value="{{ m.user_id }}">
+                                        <label class="visually-hidden" for="member-role-{{ m.user_id }}">Organization role for {{ m.full_name }}</label>
+                                        <div class="d-flex gap-2">
+                                            <select id="member-role-{{ m.user_id }}" name="member_role" class="form-select form-select-sm">
+                                                <option value="member">Member</option>
+                                                <option value="officer" selected>Officer</option>
+                                                <option value="president">President</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                        </div>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST" action="{{ url_for('admin.organization_add_member', organization_id=org.organization_id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="student_id" value="{{ m.user_id }}">
+                                        <label class="visually-hidden" for="member-role-{{ m.user_id }}">Organization role for {{ m.full_name }}</label>
+                                        <div class="d-flex gap-2">
+                                            <select id="member-role-{{ m.user_id }}" name="member_role" class="form-select form-select-sm">
+                                                <option value="member" selected>Member</option>
+                                                <option value="officer">Officer</option>
+                                                <option value="president">President</option>
+                                            </select>
+                                            <button type="submit" class="btn btn-sm btn-outline-primary">Save</button>
+                                        </div>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    {% if not is_president_manager|default(false) or (m.member_role != 'president' and m.user_id != session.user_id) %}
+                                    <form method="POST" action="{{ url_for('officer.president_remove_member' if is_president_manager|default(false) else 'admin.organization_remove_member', organization_id=org.organization_id, user_id=m.user_id) }}" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove" data-confirm="Remove {{ m.full_name }} from {{ org.name }}?">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-person-x fs-1 d-block mb-2"></i>
+                    No members assigned to this organization yet.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

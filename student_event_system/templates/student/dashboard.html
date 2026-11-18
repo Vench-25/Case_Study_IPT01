@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard - NEUST-TOC{% endblock %}
+
+{% block content %}
+<header class="workspace-intro">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Your upcoming events and registrations.</p>
+    </div>
+    <a href="{{ url_for('student.events') }}" class="btn btn-primary">
+        <i class="bi bi-search me-1" aria-hidden="true"></i> Browse events
+    </a>
+</header>
+
+<section class="row g-4" aria-label="Your events">
+    <div class="col-lg-8">
+        <div class="section-rule mb-3">
+            <h2>Upcoming events</h2>
+            <a href="{{ url_for('student.registrations') }}">All registrations</a>
+        </div>
+
+        {% if stats.upcoming_events %}
+        <div class="registration-list">
+            {% for evt in stats.upcoming_events %}
+            <article class="event-listing">
+                <div class="event-date-block">
+                    <span>{{ evt.start_at|datetimeformat('%b %d') }}</span>
+                    <small class="d-block">{{ evt.start_at|datetimeformat('%I:%M %p') }}</small>
+                </div>
+                <div>
+                    <h3 class="event-listing-title">
+                        <a href="{{ url_for('student.event_detail', event_id=evt.event_id) }}" class="text-decoration-none">{{ evt.title }}</a>
+                    </h3>
+                    <div class="event-listing-meta">
+                        <span><i class="bi bi-building me-1" aria-hidden="true"></i>{{ evt.organization_name }}</span>
+                        <span><i class="bi bi-geo-alt me-1" aria-hidden="true"></i>{{ evt.venue }}</span>
+                    </div>
+                </div>
+                <a href="{{ url_for('student.event_detail', event_id=evt.event_id) }}" class="btn btn-sm btn-outline-primary">Details</a>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="py-4">
+            <h3 class="h5 mb-1">You have not registered for any events</h3>
+            <p class="text-muted mb-3">Registered events appear here.</p>
+            <a href="{{ url_for('student.events') }}" class="btn btn-outline-primary">Browse events</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <aside class="col-lg-4" aria-label="Participation summary">
+        <section class="card">
+            <div class="card-body p-3 p-lg-4">
+                <h2 class="h5">Your registrations</h2>
+                <p class="mb-1"><strong>{{ stats.active_registrations }}</strong> active registration{{ '' if stats.active_registrations == 1 else 's' }}</p>
+                <p class="text-muted small mb-3">Across {{ stats.total_registrations }} total registration{{ '' if stats.total_registrations == 1 else 's' }}, {{ stats.events_attended }} event{{ '' if stats.events_attended == 1 else 's' }} attended</p>
+                <a href="{{ url_for('student.registrations') }}" class="btn btn-outline-secondary btn-sm">Manage registrations</a>
+            </div>
+        </section>
+    </aside>
+</section>
+{% endblock %}

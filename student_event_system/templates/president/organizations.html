@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Organizations - NEUST-TOC{% endblock %}
+
+{% block content %}
+<header class="page-heading">
+    <div>
+        <h1>Organizations</h1>
+    </div>
+</header>
+
+<section class="card data-table-card">
+    {% if organizations %}
+    <div class="list-group list-group-flush">
+        {% for org in organizations %}
+        <a class="list-group-item list-group-item-action py-3 fw-semibold"
+           href="{{ url_for('officer.president_organization_edit', organization_id=org.organization_id) }}">
+            {{ org.name }}
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="p-4">
+        <p class="mb-0">No organizations are assigned to you.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

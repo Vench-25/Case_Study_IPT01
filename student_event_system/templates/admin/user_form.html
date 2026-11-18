@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Create User' if action == 'new' else 'Edit User' }} - NEUST-TOC{% endblock %}
+
+{% block content %}
+<div class="form-shell">
+    <header class="page-heading">
+        <div>
+            <h1>{{ 'Create account' if action == 'new' else 'Edit account' }}</h1>
+            <p>Manage account details and credentials. Organization roles are managed with organization membership.</p>
+        </div>
+        <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">Back to users</a>
+    </header>
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="mb-3">
+                        <label for="full_name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="full_name" name="full_name"
+                               autocomplete="name"
+                               value="{{ full_name if full_name is defined else (user.full_name if user else '') }}" required>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   autocomplete="email"
+                                   value="{{ email if email is defined else (user.email if user else '') }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="student_no" class="form-label">Student Number <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="student_no" name="student_no"
+                                   placeholder="TAL202X-XXXXX" autocorrect="off"
+                                   autocapitalize="characters" spellcheck="false"
+                                   value="{{ student_no if student_no is defined else (user.student_no if user else '') }}" required>
+                        </div>
+                    </div>
+
+                    {% if action == 'new' %}
+                    <div class="mb-4">
+                        <label for="organization_id" class="form-label">Organization <span class="text-danger">*</span></label>
+                        <select class="form-select" id="organization_id" name="organization_id"
+                                aria-describedby="organization-help" required>
+                            <option value="" disabled {% if not organization_id %}selected{% endif %}>Choose an organization</option>
+                            {% for organization in organizations %}
+                            <option value="{{ organization.organization_id }}"
+                                    {% if organization_id|string == organization.organization_id|string %}selected{% endif %}>
+                                {{ organization.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text" id="organization-help">
+                            Choose an organization to add this user as a member.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="member_role" class="form-label">Organization Role <span class="text-danger">*</span></label>
+                        <select class="form-select" id="member_role" name="member_role"
+                                aria-describedby="organization-role-help" required>
+                            <option value="" disabled {% if not member_role %}selected{% endif %}>Choose an organization role</option>
+                            <option value="member" {% if member_role == 'member' %}selected{% endif %}>Member</option>
+                            <option value="officer" {% if member_role == 'officer' %}selected{% endif %}>Officer</option>
+                            <option value="president" {% if member_role == 'president' %}selected{% endif %}>President</option>
+                        </select>
+                        <div class="form-text" id="organization-role-help">
+                            Member roles receive student access. Officer or president membership in any
+                            organization grants officer access. Each organization can have only one president.
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if action == 'new' %}
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="password" name="password"
+                               autocomplete="new-password" minlength="8" required>
+                        <div class="form-text">Must be at least 8 characters long.</div>
+                    </div>
+                    {% else %}
+                    <div class="mb-4">
+                        <label for="new_password" class="form-label">Change Password <small class="text-muted">(Leave blank to keep current)</small></label>
+                        <input type="password" class="form-control" id="new_password" name="new_password"
+                               autocomplete="new-password" minlength="8">
+                        <div class="form-text">Enter at least 8 characters only if you want to reset this user's password.</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('admin.users') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Back to Users
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check2-circle me-1"></i> {{ 'Create Account' if action == 'new' else 'Save Changes' }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+    </div>
+</div>
+{% endblock %}
